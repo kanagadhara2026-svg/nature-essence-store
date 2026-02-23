@@ -48,9 +48,9 @@ const ProductCard = ({ image, name, category, price, originalPrice, rating, isNe
         ))}
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-foreground">${price.toFixed(2)}</span>
+        <span className="font-semibold text-foreground">₹{price.toLocaleString("en-IN")}</span>
         {originalPrice && (
-          <span className="text-sm text-muted-foreground line-through">${originalPrice.toFixed(2)}</span>
+          <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toLocaleString("en-IN")}</span>
         )}
       </div>
     </div>
