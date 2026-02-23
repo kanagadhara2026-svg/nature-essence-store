@@ -1,22 +1,17 @@
-import { Leaf } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 
 const Footer = () => {
   return (
     <footer className="bg-foreground text-primary-foreground py-16">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-          {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Leaf className="h-5 w-5" />
-              <span className="font-serif text-xl font-semibold">Kanagadhara</span>
-            </div>
+            <img src={logo} alt="Kanagadhara" className="h-14 w-auto mb-4 brightness-150" />
             <p className="text-sm opacity-60 leading-relaxed">
               Handcrafted herbal beauty and wellness products inspired by nature's wisdom. Organic, sustainable, and made with love.
             </p>
           </div>
 
-          {/* Links */}
           {[
             { heading: "Shop", links: ["All Products", "Skincare", "Essential Oils", "Supplements", "Bath & Body"] },
             { heading: "Company", links: ["About Us", "Our Story", "Sustainability", "Journal", "Careers"] },
