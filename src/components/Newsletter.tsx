@@ -11,7 +11,7 @@ const Newsletter = () => {
       <div className="container mx-auto px-6 text-center">
         <Leaf className="h-10 w-10 mx-auto mb-6 opacity-60" />
         <h2 className="font-serif text-3xl lg:text-4xl font-semibold mb-4">
-          Join the Botanica Family
+          Join the Kanagadhara Family
         </h2>
         <p className="max-w-md mx-auto mb-8 opacity-80 leading-relaxed">
           Subscribe for exclusive offers, herbal wellness tips, and early access to new collections.
