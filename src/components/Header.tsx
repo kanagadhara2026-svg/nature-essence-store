@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { ShoppingBag, Search, Menu, X } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAdmin } = useAuth();
 
   const navLinks = ["Shop", "About", "Ingredients", "Journal", "Contact"];
 
@@ -36,6 +39,11 @@ const Header = () => {
               3
             </span>
           </button>
+          {isAdmin && (
+            <Link to="/admin" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Admin">
+              <Settings className="h-5 w-5" />
+            </Link>
+          )}
           <button
             aria-label="Menu"
             className="lg:hidden text-muted-foreground hover:text-primary transition-colors"

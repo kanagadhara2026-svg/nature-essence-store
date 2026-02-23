@@ -1,4 +1,8 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "./ProductCard";
+import type { Tables } from "@/integrations/supabase/types";
+
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -6,16 +10,30 @@ import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 import product6 from "@/assets/product-6.jpg";
 
-const products = [
-  { image: product1, name: "Golden Chamomile Elixir", category: "Herbal Teas", price: 28.00, rating: 5, isNew: true },
-  { image: product2, name: "Forest Vitality Serum", category: "Skincare", price: 54.00, originalPrice: 68.00, rating: 5 },
-  { image: product3, name: "Lavender Dream Cream", category: "Body Care", price: 36.00, rating: 4 },
-  { image: product4, name: "Rosemary & Eucalyptus Oil", category: "Essential Oils", price: 24.00, rating: 5, isNew: true },
-  { image: product5, name: "Botanical Flower Soap", category: "Bath & Body", price: 16.00, rating: 4 },
-  { image: product6, name: "Turmeric Wellness Capsules", category: "Supplements", price: 42.00, rating: 5 },
-];
+const imageMap: Record<string, string> = {
+  "/product-1": product1,
+  "/product-2": product2,
+  "/product-3": product3,
+  "/product-4": product4,
+  "/product-5": product5,
+  "/product-6": product6,
+};
 
 const FeaturedProducts = () => {
+  const [products, setProducts] = useState<Tables<"products">[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: true })
+      .limit(6)
+      .then(({ data }) => {
+        if (data) setProducts(data);
+      });
+  }, []);
+
   return (
     <section id="shop" className="py-20 lg:py-28">
       <div className="container mx-auto px-6">
@@ -30,8 +48,17 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-          {products.map((product) => (
-            <ProductCard key={product.name} {...product} />
+          {products.map((p) => (
+            <ProductCard
+              key={p.id}
+              image={imageMap[p.image_url || ""] || p.image_url || product1}
+              name={p.name}
+              category={p.category}
+              price={p.price}
+              originalPrice={p.original_price ?? undefined}
+              rating={p.rating}
+              isNew={p.is_new}
+            />
           ))}
         </div>
       </div>
