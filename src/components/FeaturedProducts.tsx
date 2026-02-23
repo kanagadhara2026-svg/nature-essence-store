@@ -35,19 +35,26 @@ const FeaturedProducts = () => {
   }, []);
 
   return (
-    <section id="shop" className="py-20 lg:py-28">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs uppercase tracking-[0.3em] text-accent font-semibold mb-3">Curated Selection</p>
-          <h2 className="font-serif text-3xl lg:text-4xl font-semibold text-foreground mb-4">
-            Our Bestsellers
+    <section id="shop" className="py-16 sm:py-20 lg:py-28 relative">
+      {/* Background glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[150px]" />
+
+      <div className="container mx-auto px-4 sm:px-6 relative">
+        <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-4">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-primary font-semibold">
+              Curated Selection
+            </span>
+          </div>
+          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
+            Our <span className="text-gradient">Bestsellers</span>
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
             Each product is thoughtfully crafted using sustainably sourced herbs and time-honored botanical traditions.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-8">
           {products.map((p) => (
             <ProductCard
               key={p.id}

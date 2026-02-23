@@ -3,50 +3,80 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Image */}
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-gradient-hero">
+      {/* Background Image with overlay */}
       <div className="absolute inset-0">
         <img
           src={heroImage}
           alt="Natural herbal products with botanical ingredients"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-30"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-transparent to-background/40" />
       </div>
 
+      {/* Decorative glow orbs */}
+      <div className="absolute top-1/4 -left-32 w-64 h-64 rounded-full bg-primary/10 blur-[100px] animate-pulse-glow" />
+      <div className="absolute bottom-1/4 right-0 w-80 h-80 rounded-full bg-accent/10 blur-[120px] animate-pulse-glow" style={{ animationDelay: "1.5s" }} />
+
       {/* Content */}
-      <div className="relative container mx-auto px-6 pt-20">
-        <div className="max-w-xl">
-          <p
-            className="text-sage text-sm uppercase tracking-[0.3em] mb-4 animate-fade-up"
+      <div className="relative container mx-auto px-4 sm:px-6 pt-20 pb-12">
+        <div className="max-w-2xl">
+          <div
+            className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-6 animate-fade-up"
             style={{ animationDelay: "0.1s" }}
           >
-            Pure · Natural · Botanical
-          </p>
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-glow" />
+            <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground font-medium">
+              Pure · Natural · Botanical
+            </span>
+          </div>
+
           <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-serif font-semibold text-primary-foreground leading-tight mb-6 animate-fade-up"
+            className="text-4xl sm:text-5xl lg:text-7xl font-serif font-bold leading-[1.1] mb-6 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
             Nature's Remedy,{" "}
-            <span className="italic font-normal">Crafted for You</span>
+            <span className="text-gradient italic font-normal">
+              Crafted for You
+            </span>
           </h1>
+
           <p
-            className="text-primary-foreground/80 text-lg md:text-xl leading-relaxed mb-8 font-light animate-fade-up"
+            className="text-muted-foreground text-base sm:text-lg lg:text-xl leading-relaxed mb-8 max-w-lg animate-fade-up"
             style={{ animationDelay: "0.5s" }}
           >
             Discover our curated collection of handcrafted herbal products, 
             sourced from organic farms and blended with centuries-old wisdom.
           </p>
+
           <div
-            className="flex flex-wrap gap-4 animate-fade-up"
+            className="flex flex-col sm:flex-row gap-3 animate-fade-up"
             style={{ animationDelay: "0.7s" }}
           >
-            <Button variant="hero" size="lg">
+            <Button variant="hero" size="lg" className="w-full sm:w-auto">
               Shop Collection
             </Button>
-            <Button variant="heroOutline" size="lg">
+            <Button variant="heroOutline" size="lg" className="w-full sm:w-auto">
               Our Story
             </Button>
+          </div>
+
+          {/* Stats */}
+          <div
+            className="grid grid-cols-3 gap-4 mt-12 pt-8 border-t border-border/50 animate-fade-up"
+            style={{ animationDelay: "0.9s" }}
+          >
+            {[
+              { value: "500+", label: "Products" },
+              { value: "50K+", label: "Customers" },
+              { value: "100%", label: "Organic" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <p className="text-2xl sm:text-3xl font-serif font-bold text-gradient">{stat.value}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
