@@ -13,7 +13,7 @@ const Header = () => {
         <a href="/" className="flex items-center gap-2">
           <Leaf className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl lg:text-2xl font-semibold text-foreground tracking-tight">
-            Botanica
+            Kanagadhara
           </span>
         </a>
 

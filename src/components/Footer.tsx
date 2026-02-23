@@ -9,10 +9,10 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Leaf className="h-5 w-5" />
-              <span className="font-serif text-xl font-semibold">Botanica</span>
+              <span className="font-serif text-xl font-semibold">Kanagadhara</span>
             </div>
             <p className="text-sm opacity-60 leading-relaxed">
-              Handcrafted herbal products inspired by nature's wisdom. Organic, sustainable, and made with love.
+              Handcrafted herbal beauty and wellness products inspired by nature's wisdom. Organic, sustainable, and made with love.
             </p>
           </div>
 
@@ -38,7 +38,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs opacity-50">© 2026 Botanica. All rights reserved.</p>
+          <p className="text-xs opacity-50">© 2026 Kanagadhara Herbal Beauty & Wellness. All rights reserved.</p>
           <div className="flex gap-6">
             {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((link) => (
               <a key={link} href="#" className="text-xs opacity-50 hover:opacity-100 transition-opacity">

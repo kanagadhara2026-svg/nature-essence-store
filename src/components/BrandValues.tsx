@@ -12,7 +12,7 @@ const BrandValues = () => {
     <section className="py-20 lg:py-28">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs uppercase tracking-[0.3em] text-accent font-semibold mb-3">Why Botanica</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-accent font-semibold mb-3">Why Kanagadhara</p>
           <h2 className="font-serif text-3xl lg:text-4xl font-semibold text-foreground">
             Rooted in Nature, Backed by Science
           </h2>
