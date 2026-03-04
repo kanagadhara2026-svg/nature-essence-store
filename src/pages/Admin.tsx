@@ -25,7 +25,7 @@ const statusColors: Record<string, string> = {
 const allStatuses = ["pending", "confirmed", "packed", "shipped", "out_for_delivery", "delivered", "cancelled", "returned"];
 
 const Admin = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tab, setTab] = useState<"products" | "orders">("products");
@@ -39,8 +39,8 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate("/auth");
-  }, [user, isAdmin, loading, navigate]);
+    if (!loading && !adminLoading && (!user || !isAdmin)) navigate("/auth");
+  }, [user, isAdmin, loading, adminLoading, navigate]);
 
   useEffect(() => {
     if (isAdmin) { fetchProducts(); fetchOrders(); }
