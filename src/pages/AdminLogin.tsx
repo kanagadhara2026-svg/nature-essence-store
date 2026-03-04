@@ -4,20 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, LogIn } from "lucide-react";
+import { Shield } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
-const Auth = () => {
-  const [isLogin, setIsLogin] = useState(false); // Default to signup
+const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user, isAdmin, loading, adminLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  if (user) {
-    navigate("/");
+  if (!loading && !adminLoading && user && isAdmin) {
+    navigate("/admin");
     return null;
   }
 
@@ -26,46 +25,41 @@ const Auth = () => {
     if (!email.trim() || !password.trim()) return;
     setSubmitting(true);
 
-    const { error } = isLogin
-      ? await signIn(email.trim(), password)
-      : await signUp(email.trim(), password);
-
+    const { error } = await signIn(email.trim(), password);
     setSubmitting(false);
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else if (isLogin) {
-      toast({ title: "Welcome back!" });
-      navigate("/");
     } else {
-      toast({ title: "Account Created!", description: "Check your email to confirm your account." });
+      toast({ title: "Welcome, Admin!" });
+      navigate("/admin");
     }
   };
 
   return (
     <div className="min-h-[100svh] flex items-center justify-center bg-background px-4 relative">
-      <div className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-primary/8 blur-[100px]" />
-      <div className="absolute bottom-1/3 right-1/4 w-48 h-48 rounded-full bg-accent/8 blur-[100px]" />
+      <div className="absolute top-1/3 left-1/4 w-64 h-64 rounded-full bg-destructive/5 blur-[100px]" />
+      <div className="absolute bottom-1/3 right-1/4 w-48 h-48 rounded-full bg-primary/5 blur-[100px]" />
 
       <div className="w-full max-w-sm relative">
         <div className="card-3d rounded-2xl p-6 sm:p-8">
           <div className="text-center mb-6">
             <img src={logo} alt="Kanagadhara" className="h-14 mx-auto mb-4" />
             <div className="flex items-center justify-center gap-2 mb-2">
-              {isLogin ? <LogIn className="h-5 w-5 text-primary" /> : <UserPlus className="h-5 w-5 text-primary" />}
+              <Shield className="h-5 w-5 text-primary" />
               <h1 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
-                {isLogin ? "Welcome Back" : "Create Account"}
+                Admin Login
               </h1>
             </div>
             <p className="text-sm text-muted-foreground">
-              {isLogin ? "Sign in to your account" : "Sign up to shop & track your orders"}
+              Sign in to access the admin dashboard
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="Admin Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -73,7 +67,7 @@ const Auth = () => {
             />
             <Input
               type="password"
-              placeholder="Password (min. 6 characters)"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -81,22 +75,15 @@ const Auth = () => {
               className="h-12 rounded-xl bg-secondary border-border"
             />
             <Button type="submit" variant="hero" size="lg" className="w-full h-12" disabled={submitting}>
-              {submitting ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
+              {submitting ? "Signing in..." : "Sign In as Admin"}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-            <button onClick={() => setIsLogin(!isLogin)} className="text-primary font-semibold hover:underline">
-              {isLogin ? "Sign Up" : "Sign In"}
-            </button>
-          </p>
-
           <button
             onClick={() => navigate("/")}
-            className="w-full text-center text-xs text-muted-foreground mt-3 hover:text-foreground transition-colors"
+            className="w-full text-center text-xs text-muted-foreground mt-4 hover:text-foreground transition-colors"
           >
-            ← Continue as guest
+            ← Back to store
           </button>
         </div>
       </div>
@@ -104,4 +91,4 @@ const Auth = () => {
   );
 };
 
-export default Auth;
+export default AdminLogin;
