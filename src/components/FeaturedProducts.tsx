@@ -28,14 +28,13 @@ const FeaturedProducts = () => {
       .select("*")
       .eq("is_active", true)
       .order("created_at", { ascending: true })
-      .limit(6)
       .then(({ data }) => {
         if (data) setProducts(data);
       });
   }, []);
 
   return (
-    <section id="shop" className="py-16 sm:py-20 lg:py-28 relative">
+    <section id="shop" className="pt-20 sm:pt-24 lg:pt-28 pb-16 sm:pb-20 lg:pb-28 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-primary/5 blur-[150px]" />
       <div className="container mx-auto px-4 sm:px-6 relative">
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
