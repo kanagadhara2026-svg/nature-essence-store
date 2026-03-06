@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Menu, X, Settings, User, Package } from "lucide-react";
+import { Search, Menu, X, Settings, User, Package, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpg";
@@ -30,6 +30,9 @@ const Header = () => {
           <button aria-label="Search" className="text-muted-foreground hover:text-primary transition-colors">
             <Search className="h-5 w-5" />
           </button>
+          <Link to="/track" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Track Order">
+            <MapPin className="h-5 w-5" />
+          </Link>
           <CartDrawer />
           {user && (
             <Link to="/my-orders" className="text-muted-foreground hover:text-primary transition-colors" aria-label="My Orders">
@@ -60,6 +63,9 @@ const Header = () => {
                 {link}
               </a>
             ))}
+            <Link to="/track" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase" onClick={() => setMobileOpen(false)}>
+              Track Order
+            </Link>
             {user && (
               <Link to="/my-orders" className="text-base font-medium text-muted-foreground hover:text-foreground transition-colors tracking-wide uppercase" onClick={() => setMobileOpen(false)}>
                 My Orders

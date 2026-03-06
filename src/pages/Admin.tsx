@@ -52,7 +52,7 @@ const Admin = () => {
   };
 
   const fetchOrders = async () => {
-    const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false });
     if (data) setOrders(data);
   };
 
@@ -260,27 +260,65 @@ const Admin = () => {
         {tab === "orders" && (
           <>
             <h2 className="font-serif text-xl font-semibold text-foreground mb-4">All Orders</h2>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {orders.map((order) => (
                 <div key={order.id} className="card-3d rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono text-primary">#{order.id.slice(0, 8).toUpperCase()}</span>
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-mono text-primary font-bold">#{order.id.slice(0, 8).toUpperCase()}</span>
                     <span className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                      {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{order.delivery_name}</p>
-                      <p className="text-xs text-muted-foreground">📞 {order.delivery_phone}</p>
-                      <p className="text-xs text-muted-foreground">{order.delivery_city}, {order.delivery_state} — {order.delivery_pincode}</p>
+
+                  {/* Customer Details */}
+                  <div className="bg-secondary/50 rounded-lg p-3 mb-3">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Customer</p>
+                    <p className="text-sm font-semibold text-foreground">{order.delivery_name}</p>
+                    <p className="text-xs text-muted-foreground">📞 {order.delivery_phone}</p>
+                    {(order.guest_email || order.guest_phone) && (
+                      <p className="text-xs text-muted-foreground">
+                        {order.guest_email && `✉️ ${order.guest_email}`}
+                        {!order.user_id && <span className="ml-2 text-accent text-[10px] font-bold">(Guest)</span>}
+                      </p>
+                    )}
+                    {order.user_id && !order.guest_phone && (
+                      <p className="text-[10px] text-primary font-semibold mt-0.5">Registered User</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">📍 {order.delivery_address}</p>
+                    <p className="text-xs text-muted-foreground">{order.delivery_city}, {order.delivery_state} — {order.delivery_pincode}</p>
+                  </div>
+
+                  {/* Order Items */}
+                  {order.order_items && order.order_items.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Items</p>
+                      {order.order_items.map((item: any) => (
+                        <div key={item.id} className="flex items-center gap-2 py-1.5 border-b border-border/50 last:border-0">
+                          {item.product_image && (
+                            <img src={item.product_image} alt={item.product_name} className="w-10 h-10 rounded-lg object-cover" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground truncate">{item.product_name}</p>
+                            <p className="text-[10px] text-muted-foreground">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="text-xs font-bold text-foreground">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
+                        </div>
+                      ))}
                     </div>
+                  )}
+
+                  {/* Total & Payment */}
+                  <div className="flex items-center justify-between mb-3 pt-2 border-t border-border">
+                    <p className="text-sm font-bold text-foreground">Total</p>
                     <div className="text-right">
-                      <p className="text-base font-bold text-foreground">₹{Number(order.total_amount).toLocaleString("en-IN")}</p>
+                      <p className="text-base font-bold text-primary">₹{Number(order.total_amount).toLocaleString("en-IN")}</p>
                       <p className="text-[10px] text-muted-foreground uppercase">{order.payment_method === "cod" ? "COD" : "Online"} · {order.payment_status}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap mt-2">
+
+                  {/* Status Controls */}
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-muted-foreground mr-1">Status:</span>
                     {allStatuses.map((s) => (
                       <button
@@ -292,6 +330,10 @@ const Admin = () => {
                       </button>
                     ))}
                   </div>
+
+                  {order.notes && (
+                    <p className="text-xs text-muted-foreground mt-2 italic">Note: {order.notes}</p>
+                  )}
                 </div>
               ))}
               {orders.length === 0 && <p className="text-center text-muted-foreground py-8">No orders yet.</p>}
