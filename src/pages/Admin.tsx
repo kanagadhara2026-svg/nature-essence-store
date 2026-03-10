@@ -28,7 +28,7 @@ const Admin = () => {
   const { user, isAdmin, loading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"products" | "orders">("products");
+  const [tab, setTab] = useState<"products" | "orders">("orders");
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
