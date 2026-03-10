@@ -150,30 +150,12 @@ const Checkout = () => {
           {/* Payment Method */}
           <div className="card-3d rounded-2xl p-4 mb-6">
             <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Payment Method</h2>
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("cod")}
-                className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${paymentMethod === "cod" ? "border-primary bg-primary/10" : "border-border bg-secondary/50"}`}
-              >
-                <Banknote className={`h-5 w-5 ${paymentMethod === "cod" ? "text-primary" : "text-muted-foreground"}`} />
-                <div className="text-left">
-                  <p className={`text-sm font-semibold ${paymentMethod === "cod" ? "text-foreground" : "text-muted-foreground"}`}>Cash on Delivery</p>
-                  <p className="text-xs text-muted-foreground">Pay when you receive</p>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("razorpay")}
-                className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${paymentMethod === "razorpay" ? "border-primary bg-primary/10" : "border-border bg-secondary/50"} opacity-50 cursor-not-allowed`}
-                disabled
-              >
-                <CreditCard className={`h-5 w-5 ${paymentMethod === "razorpay" ? "text-primary" : "text-muted-foreground"}`} />
-                <div className="text-left">
-                  <p className="text-sm font-semibold text-muted-foreground">Pay Online (Razorpay)</p>
-                  <p className="text-xs text-muted-foreground">Coming soon</p>
-                </div>
-              </button>
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-primary bg-primary/10">
+              <Banknote className="h-5 w-5 text-primary" />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">Cash on Delivery</p>
+                <p className="text-xs text-muted-foreground">Pay when you receive your order</p>
+              </div>
             </div>
           </div>
 
