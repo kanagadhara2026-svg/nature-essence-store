@@ -15,7 +15,7 @@ const Checkout = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
+  const paymentMethod = "cod";
   const [form, setForm] = useState({
     name: "",
     email: "",
