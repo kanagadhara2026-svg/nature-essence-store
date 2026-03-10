@@ -18,6 +18,7 @@ interface ProductCardProps {
 const ProductCard = ({ id, image, name, category, brand, price, originalPrice, rating, isNew }: ProductCardProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
