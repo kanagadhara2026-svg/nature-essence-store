@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import OrderDetail from "./pages/OrderDetail";
 import MyOrders from "./pages/MyOrders";
 import TrackOrder from "./pages/TrackOrder";
+import ProductDetail from "./pages/ProductDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
