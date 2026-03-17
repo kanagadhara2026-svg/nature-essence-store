@@ -47,6 +47,18 @@ const Checkout = () => {
     document.body.appendChild(script);
   }, []);
 
+  // Redirect to auth if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4">
+        <Package className="h-16 w-16 text-muted-foreground mb-4" />
+        <h2 className="font-serif text-xl text-foreground mb-2">Sign in to place your order</h2>
+        <p className="text-sm text-muted-foreground mb-4 text-center">Create an account to complete your purchase and track your orders</p>
+        <Button variant="hero" onClick={() => navigate("/auth")}>Sign Up / Login</Button>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4">
@@ -59,6 +71,7 @@ const Checkout = () => {
 
   const createOrder = async () => {
     const orderPayload: any = {
+      user_id: user.id,
       delivery_name: form.name.trim(),
       delivery_phone: form.phone.trim(),
       delivery_address: form.address.trim(),
@@ -70,14 +83,6 @@ const Checkout = () => {
       total_amount: totalAmount,
       status: "pending",
     };
-
-    if (user) {
-      orderPayload.user_id = user.id;
-    } else {
-      orderPayload.guest_name = form.name.trim();
-      orderPayload.guest_email = form.email.trim() || null;
-      orderPayload.guest_phone = form.phone.trim();
-    }
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
@@ -242,9 +247,6 @@ const Checkout = () => {
             <div className="space-y-3">
               <Input placeholder="Full Name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
               <Input placeholder="Phone Number *" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
-              {!user && (
-                <Input placeholder="Email (optional, for order updates)" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="bg-secondary border-border rounded-xl h-11" />
-              )}
               <Input placeholder="Delivery Address *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
               <div className="grid grid-cols-2 gap-3">
                 <Input placeholder="City *" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
@@ -308,14 +310,6 @@ const Checkout = () => {
               : `Place Order — ₹${totalAmount.toLocaleString("en-IN")}`}
           </Button>
 
-          {!user && (
-            <p className="text-center text-xs text-muted-foreground mt-3">
-              Want to track your orders?{" "}
-              <button type="button" onClick={() => navigate("/auth")} className="text-primary font-semibold hover:underline">
-                Sign up
-              </button>
-            </p>
-          )}
         </form>
       </div>
     </div>
