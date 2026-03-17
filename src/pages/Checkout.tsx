@@ -47,6 +47,18 @@ const Checkout = () => {
     document.body.appendChild(script);
   }, []);
 
+  // Redirect to auth if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4">
+        <Package className="h-16 w-16 text-muted-foreground mb-4" />
+        <h2 className="font-serif text-xl text-foreground mb-2">Sign in to place your order</h2>
+        <p className="text-sm text-muted-foreground mb-4 text-center">Create an account to complete your purchase and track your orders</p>
+        <Button variant="hero" onClick={() => navigate("/auth")}>Sign Up / Login</Button>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="min-h-[100svh] flex flex-col items-center justify-center bg-background px-4">
