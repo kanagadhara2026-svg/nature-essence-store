@@ -71,6 +71,7 @@ const Checkout = () => {
 
   const createOrder = async () => {
     const orderPayload: any = {
+      user_id: user.id,
       delivery_name: form.name.trim(),
       delivery_phone: form.phone.trim(),
       delivery_address: form.address.trim(),
@@ -82,14 +83,6 @@ const Checkout = () => {
       total_amount: totalAmount,
       status: "pending",
     };
-
-    if (user) {
-      orderPayload.user_id = user.id;
-    } else {
-      orderPayload.guest_name = form.name.trim();
-      orderPayload.guest_email = form.email.trim() || null;
-      orderPayload.guest_phone = form.phone.trim();
-    }
 
     const { data: order, error: orderError } = await supabase
       .from("orders")
