@@ -61,10 +61,10 @@ const ProductDetail = () => {
     });
   }, [id]);
 
-  const handleAddToCart = () => {
+  const handleBuyNow = () => {
     if (!product) return;
     addItem({ id: product.id, name: product.name, price: product.price, image: resolveImage(product.image_url), brand: product.brand });
-    toast({ title: "Added to cart", description: product.name });
+    navigate("/checkout");
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
