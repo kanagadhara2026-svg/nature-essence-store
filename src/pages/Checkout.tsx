@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Package, Banknote } from "lucide-react";
+import { ArrowLeft, Package, Banknote, CreditCard, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const Checkout = () => {
   const { items, totalAmount, clearCart } = useCart();
@@ -15,7 +21,8 @@ const Checkout = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
-  const paymentMethod = "cod";
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -25,6 +32,20 @@ const Checkout = () => {
     state: "",
     pincode: "",
   });
+
+  // Load Razorpay script
+  useEffect(() => {
+    if (document.getElementById("razorpay-script")) {
+      setRazorpayLoaded(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => setRazorpayLoaded(true);
+    document.body.appendChild(script);
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -36,6 +57,116 @@ const Checkout = () => {
     );
   }
 
+  const createOrder = async () => {
+    const orderPayload: any = {
+      delivery_name: form.name.trim(),
+      delivery_phone: form.phone.trim(),
+      delivery_address: form.address.trim(),
+      delivery_city: form.city.trim(),
+      delivery_state: form.state.trim(),
+      delivery_pincode: form.pincode.trim(),
+      payment_method: paymentMethod,
+      payment_status: "pending",
+      total_amount: totalAmount,
+      status: "pending",
+    };
+
+    if (user) {
+      orderPayload.user_id = user.id;
+    } else {
+      orderPayload.guest_name = form.name.trim();
+      orderPayload.guest_email = form.email.trim() || null;
+      orderPayload.guest_phone = form.phone.trim();
+    }
+
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .insert(orderPayload)
+      .select()
+      .single();
+
+    if (orderError) throw orderError;
+
+    const orderItems = items.map((item) => ({
+      order_id: order.id,
+      product_id: item.id,
+      product_name: item.name,
+      product_image: item.image,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+    if (itemsError) throw itemsError;
+
+    return order;
+  };
+
+  const handleRazorpayPayment = async (order: any) => {
+    // Create Razorpay order via edge function
+    const { data: rzpData, error: rzpError } = await supabase.functions.invoke(
+      "create-razorpay-order",
+      {
+        body: { amount: totalAmount, order_id: order.id },
+      }
+    );
+
+    if (rzpError || rzpData?.error) {
+      throw new Error(rzpData?.error || rzpError?.message || "Failed to create payment order");
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      const options = {
+        key: rzpData.razorpay_key_id,
+        amount: rzpData.amount,
+        currency: rzpData.currency,
+        name: "Kanagadhara",
+        description: `Order #${order.id.slice(0, 8).toUpperCase()}`,
+        order_id: rzpData.razorpay_order_id,
+        handler: async (response: any) => {
+          try {
+            // Verify payment via edge function
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
+              "verify-razorpay-payment",
+              {
+                body: {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  order_id: order.id,
+                },
+              }
+            );
+
+            if (verifyError || verifyData?.error) {
+              throw new Error(verifyData?.error || "Payment verification failed");
+            }
+
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        },
+        prefill: {
+          name: form.name,
+          email: form.email || undefined,
+          contact: form.phone,
+        },
+        theme: {
+          color: "#4a7c59",
+        },
+        modal: {
+          ondismiss: () => {
+            reject(new Error("Payment cancelled"));
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.address || !form.city || !form.state || !form.pincode) {
@@ -43,56 +174,32 @@ const Checkout = () => {
       return;
     }
 
+    if (paymentMethod === "razorpay" && !razorpayLoaded) {
+      toast({ title: "Error", description: "Payment gateway is loading, please wait...", variant: "destructive" });
+      return;
+    }
+
     setSubmitting(true);
     try {
-      // Create order
-      const orderPayload: any = {
-        delivery_name: form.name.trim(),
-        delivery_phone: form.phone.trim(),
-        delivery_address: form.address.trim(),
-        delivery_city: form.city.trim(),
-        delivery_state: form.state.trim(),
-        delivery_pincode: form.pincode.trim(),
-        payment_method: paymentMethod,
-        payment_status: paymentMethod === "cod" ? "pending" : "pending",
-        total_amount: totalAmount,
-        status: "pending",
-      };
+      const order = await createOrder();
 
-      if (user) {
-        orderPayload.user_id = user.id;
+      if (paymentMethod === "razorpay") {
+        await handleRazorpayPayment(order);
+        clearCart();
+        toast({ title: "Payment Successful! 🎉", description: `Order #${order.id.slice(0, 8).toUpperCase()} confirmed` });
+        navigate(`/order/${order.id}`);
       } else {
-        orderPayload.guest_name = form.name.trim();
-        orderPayload.guest_email = form.email.trim() || null;
-        orderPayload.guest_phone = form.phone.trim();
+        // COD
+        clearCart();
+        toast({ title: "Order Placed! 🎉", description: `Order ID: ${order.id.slice(0, 8).toUpperCase()}` });
+        navigate(`/order/${order.id}`);
       }
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert(orderPayload)
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
-        product_id: item.id,
-        product_name: item.name,
-        product_image: item.image,
-        quantity: item.quantity,
-        price: item.price,
-      }));
-
-      const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      clearCart();
-      toast({ title: "Order Placed! 🎉", description: `Order ID: ${order.id.slice(0, 8).toUpperCase()}` });
-      navigate(`/order/${order.id}`);
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      if (err.message === "Payment cancelled") {
+        toast({ title: "Payment Cancelled", description: "You can retry or choose Cash on Delivery", variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: err.message, variant: "destructive" });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -150,17 +257,55 @@ const Checkout = () => {
           {/* Payment Method */}
           <div className="card-3d rounded-2xl p-4 mb-6">
             <h2 className="font-serif text-lg font-semibold text-foreground mb-3">Payment Method</h2>
-            <div className="flex items-center gap-3 p-3 rounded-xl border border-primary bg-primary/10">
-              <Banknote className="h-5 w-5 text-primary" />
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">Cash on Delivery</p>
-                <p className="text-xs text-muted-foreground">Pay when you receive your order</p>
-              </div>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("razorpay")}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                  paymentMethod === "razorpay"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary hover:border-primary/50"
+                }`}
+              >
+                {paymentMethod === "razorpay" ? (
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                ) : (
+                  <CreditCard className="h-5 w-5 text-muted-foreground shrink-0" />
+                )}
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-foreground">Pay Online (Razorpay)</p>
+                  <p className="text-xs text-muted-foreground">UPI, Cards, Net Banking, Wallets</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("cod")}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                  paymentMethod === "cod"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-secondary hover:border-primary/50"
+                }`}
+              >
+                {paymentMethod === "cod" ? (
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                ) : (
+                  <Banknote className="h-5 w-5 text-muted-foreground shrink-0" />
+                )}
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-foreground">Cash on Delivery</p>
+                  <p className="text-xs text-muted-foreground">Pay when you receive your order</p>
+                </div>
+              </button>
             </div>
           </div>
 
           <Button type="submit" variant="hero" size="lg" className="w-full h-14 text-base" disabled={submitting}>
-            {submitting ? "Placing Order..." : `Place Order — ₹${totalAmount.toLocaleString("en-IN")}`}
+            {submitting
+              ? "Processing..."
+              : paymentMethod === "razorpay"
+              ? `Pay ₹${totalAmount.toLocaleString("en-IN")}`
+              : `Place Order — ₹${totalAmount.toLocaleString("en-IN")}`}
           </Button>
 
           {!user && (
