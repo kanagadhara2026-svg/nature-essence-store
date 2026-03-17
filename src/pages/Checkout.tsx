@@ -247,9 +247,6 @@ const Checkout = () => {
             <div className="space-y-3">
               <Input placeholder="Full Name *" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
               <Input placeholder="Phone Number *" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
-              {!user && (
-                <Input placeholder="Email (optional, for order updates)" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="bg-secondary border-border rounded-xl h-11" />
-              )}
               <Input placeholder="Delivery Address *" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
               <div className="grid grid-cols-2 gap-3">
                 <Input placeholder="City *" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required className="bg-secondary border-border rounded-xl h-11" />
