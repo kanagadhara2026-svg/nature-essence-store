@@ -146,8 +146,8 @@ const ProductDetail = () => {
               {product.original_price && <span className="text-lg text-muted-foreground line-through">₹{product.original_price.toLocaleString("en-IN")}</span>}
             </div>
             {product.description && <p className="text-muted-foreground text-sm leading-relaxed mb-6">{product.description}</p>}
-            <Button onClick={handleAddToCart} size="lg" className="w-full sm:w-auto gap-2">
-              <ShoppingBag className="h-4 w-4" /> Add to Cart
+            <Button onClick={handleBuyNow} variant="hero" size="lg" className="w-full sm:w-auto gap-2">
+              <ShoppingBag className="h-4 w-4" /> Buy Now
             </Button>
           </div>
         </div>
