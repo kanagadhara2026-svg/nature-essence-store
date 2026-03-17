@@ -310,14 +310,6 @@ const Checkout = () => {
               : `Place Order — ₹${totalAmount.toLocaleString("en-IN")}`}
           </Button>
 
-          {!user && (
-            <p className="text-center text-xs text-muted-foreground mt-3">
-              Want to track your orders?{" "}
-              <button type="button" onClick={() => navigate("/auth")} className="text-primary font-semibold hover:underline">
-                Sign up
-              </button>
-            </p>
-          )}
         </form>
       </div>
     </div>
