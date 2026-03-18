@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, LogOut, Home, Package, Image as ImageIcon, Upload } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Home, Package, Image as ImageIcon, Upload, Users } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import logo from "@/assets/logo.jpg";
 
 type Product = Tables<"products">;
+type Profile = Tables<"profiles">;
 
 const statusColors: Record<string, string> = {
   pending: "bg-accent/20 text-accent",
@@ -28,12 +29,14 @@ const Admin = () => {
   const { user, isAdmin, loading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"products" | "orders">("orders");
+  const [tab, setTab] = useState<"products" | "orders" | "users">("orders");
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [users, setUsers] = useState<Profile[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "", description: "", category: "General", brand: "", price: "", original_price: "", rating: "5", is_new: false, is_active: true, image_url: "",
   });
@@ -43,7 +46,7 @@ const Admin = () => {
   }, [user, isAdmin, loading, adminLoading, navigate]);
 
   useEffect(() => {
-    if (isAdmin) { fetchProducts(); fetchOrders(); }
+    if (isAdmin) { fetchProducts(); fetchOrders(); fetchUsers(); }
   }, [isAdmin]);
 
   const fetchProducts = async () => {
@@ -54,6 +57,11 @@ const Admin = () => {
   const fetchOrders = async () => {
     const { data } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false });
     if (data) setOrders(data);
+  };
+
+  const fetchUsers = async () => {
+    const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    if (data) setUsers(data);
   };
 
   const resetForm = () => {
@@ -123,6 +131,36 @@ const Admin = () => {
     else { toast({ title: "Deleted" }); fetchProducts(); }
   };
 
+  const handleDeleteUser = async (userId: string, displayName: string | null) => {
+    if (!confirm(`Delete user "${displayName || "Unknown"}"? This will permanently remove their account and profile. Their existing orders will be preserved.`)) return;
+    setDeletingUser(userId);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        toast({ title: "Error", description: "Not authenticated", variant: "destructive" });
+        setDeletingUser(null);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("delete-user", {
+        body: { user_id: userId },
+      });
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      } else if (data?.error) {
+        toast({ title: "Error", description: data.error, variant: "destructive" });
+      } else {
+        toast({ title: "User Deleted", description: `${displayName || "User"} has been removed` });
+        fetchUsers();
+      }
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+    setDeletingUser(null);
+  };
+
   const updateOrderStatus = async (orderId: string, status: string) => {
     const paymentStatus = status === "delivered" ? "paid" : undefined;
     const update: any = { status };
@@ -156,6 +194,9 @@ const Admin = () => {
           </button>
           <button onClick={() => setTab("orders")} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${tab === "orders" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
             <Package className="h-4 w-4 inline mr-1" /> Orders ({orders.length})
+          </button>
+          <button onClick={() => setTab("users")} className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${tab === "users" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            <Users className="h-4 w-4 inline mr-1" /> Users ({users.length})
           </button>
         </div>
       </div>
@@ -337,6 +378,41 @@ const Admin = () => {
                 </div>
               ))}
               {orders.length === 0 && <p className="text-center text-muted-foreground py-8">No orders yet.</p>}
+            </div>
+          </>
+        )}
+
+        {tab === "users" && (
+          <>
+            <h2 className="font-serif text-xl font-semibold text-foreground mb-4">Registered Users ({users.length})</h2>
+            <div className="space-y-2">
+              {users.map((u) => (
+                <div key={u.id} className="card-3d rounded-xl p-4 flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary uppercase">
+                      {(u.display_name || u.email || "?").charAt(0)}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{u.display_name || "No Name"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{u.email || "No email"}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Joined {new Date(u.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleDeleteUser(u.user_id, u.display_name)}
+                      disabled={deletingUser === u.user_id}
+                      className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
+                      title="Delete user"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {users.length === 0 && <p className="text-center text-muted-foreground py-8">No registered users yet.</p>}
             </div>
           </>
         )}
