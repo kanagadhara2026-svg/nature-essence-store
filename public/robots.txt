@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://nature-essence-store.lovable.app/sitemap.xml

@@ -22,7 +22,7 @@ const SeoJsonLd = () => {
     url: "https://nature-essence-store.lovable.app",
     logo: "https://nature-essence-store.lovable.app/favicon.ico",
     description:
-      "Handcrafted organic herbal beauty and wellness products. 100% natural, cruelty-free, and sustainably sourced.",
+      "Kanagadhara offers handcrafted organic herbal beauty and wellness products. 100% natural, cruelty-free, and sustainably sourced skincare, essential oils, supplements & bath care.",
     sameAs: [],
     contactPoint: {
       "@type": "ContactPoint",
@@ -34,8 +34,9 @@ const SeoJsonLd = () => {
   const webSiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Kanagadhara — Herbal Beauty & Wellness",
+    name: "Kanagadhara — Natural Herbal Beauty & Wellness Products",
     url: "https://nature-essence-store.lovable.app",
+    description: "Shop natural herbal skincare, organic essential oils, ayurvedic supplements & bath products. Handcrafted, cruelty-free, 100% organic.",
     potentialAction: {
       "@type": "SearchAction",
       target: "https://nature-essence-store.lovable.app/?q={search_term_string}",
@@ -43,11 +44,32 @@ const SeoJsonLd = () => {
     },
   };
 
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    name: "Kanagadhara Herbal Store",
+    url: "https://nature-essence-store.lovable.app",
+    description: "Online store for natural herbal beauty products, organic skincare, essential oils, ayurvedic wellness supplements.",
+    priceRange: "₹₹",
+    currenciesAccepted: "INR",
+    paymentAccepted: "Cash, UPI, Credit Card, Debit Card, Net Banking",
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://nature-essence-store.lovable.app/" },
+      { "@type": "ListItem", position: 2, name: "Shop Herbal Products", item: "https://nature-essence-store.lovable.app/#shop" },
+      { "@type": "ListItem", position: 3, name: "Categories", item: "https://nature-essence-store.lovable.app/#categories" },
+    ],
+  };
+
   const productSchemas = products.slice(0, 10).map((p) => ({
     "@context": "https://schema.org",
     "@type": "Product",
     name: p.name,
-    description: p.description || `${p.name} — handcrafted herbal product by Kanagadhara`,
+    description: p.description || `${p.name} — handcrafted natural herbal product by Kanagadhara. Organic, cruelty-free ${p.category.toLowerCase()}.`,
     brand: { "@type": "Brand", name: p.brand || "Kanagadhara" },
     category: p.category,
     offers: {
@@ -79,6 +101,14 @@ const SeoJsonLd = () => {
       },
       {
         "@type": "Question",
+        name: "What herbal skincare products does Kanagadhara offer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Kanagadhara offers a wide range of natural herbal skincare including face wash, body lotion, aloe vera gel, turmeric cream, organic hair oil, herbal shampoo, essential oils, ayurvedic supplements, and bath & body products.",
+        },
+      },
+      {
+        "@type": "Question",
         name: "Is Kanagadhara cruelty-free?",
         acceptedAnswer: {
           "@type": "Answer",
@@ -87,18 +117,26 @@ const SeoJsonLd = () => {
       },
       {
         "@type": "Question",
-        name: "How can I track my order?",
+        name: "How can I track my herbal product order?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "You can track your order using the 'Track Order' link in the navigation. Enter your order ID and phone number to see the current status.",
+          text: "You can track your order using the 'Track Order' link in the navigation. Sign in to your account to see real-time order status updates.",
         },
       },
       {
         "@type": "Question",
-        name: "Do I need to register to place an order?",
+        name: "What payment methods are accepted for online herbal product purchases?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "No, you can place orders as a guest. Just provide your phone number and delivery address. Registration is optional but lets you view your order history.",
+          text: "We accept Cash on Delivery (COD) and online payments via Razorpay (UPI, cards, net banking, wallets) for all herbal product orders.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Are Kanagadhara products organic and ayurvedic?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, our products are made with certified organic ingredients and are inspired by traditional Ayurvedic formulations. Each product is lab-tested for purity and potency.",
         },
       },
     ],
@@ -113,6 +151,14 @@ const SeoJsonLd = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
